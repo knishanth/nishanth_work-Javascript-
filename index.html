@@ -105,6 +105,9 @@ body{
 		   var progressBar = document.getElementById(dropdownValue);
 		   var text = progressBar.parentNode.childNodes[1].innerText;
 		   var value = (parseInt(text)+parseInt(selectedValue));
+		   if(value<0){
+		     value=0;
+		   }
 		   progressBar.parentNode.childNodes[1].innerText=value+'%';
 		   progressBar.style.width=(value)+'%';
 		   var data='progress-status';
