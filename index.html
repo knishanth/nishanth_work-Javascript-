@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<head>
+<style>
+body{
+
+}
+.container{
+  width:80%;
+  padding:20px 10% 0 10%;
+}
+.progress-bar-container{
+  width:75%;
+  height:20px;
+  border:1px solid #000;
+  text-align: center;
+  color:black;
+  overflow:hidden;
+}
+.progress-status{
+  width:20%;
+  height:100%;
+  background-color:#00FFFF;
+}
+.progress-status.red{
+   background-color:#FF0000;
+}
+.container select{
+   margin-left:5%;
+}
+
+.container input[type="button"]{
+   margin-left:5%;
+}
+.progress-bar-container {
+  position: relative;
+}
+
+.progress-bar-container span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+}
+</style>
+</head>
+<body>
+    <div id="progress-container">
+		<div class="container">
+			<!--bars container-->
+		</div>
+	</div>
+	<div class="container" id="input-selectors">
+	  <select id="drop-down">
+		<option value="progress-bar-1" selected>progress1</option>
+		<option value="progress-bar-2">progress2</option>
+		<option value="progress-bar-3">progress3</option>
+	  </select>
+	  <input class="button" type="button" value="28">
+	  <input class="button"  type="button" value="-11">
+	  <input class="button" type="button" value="-30">
+	  <input class="button" type="button" value="40">
+	</div>
+	<script src="js/vanilla.js"></script>
+	<script>
+	function createButtons(buttons,limit,selectBar){
+	 let html='';
+	 for(let i=0;i<buttons.length;i++){
+	   html+=`<input class="button" type="button" value="${buttons[i]}">`;
+	 }
+	 document.getElementById("input-selectors").innerHTML=selectBar+html;
+	}
+	
+	function createBars(bar,limit,buttons){
+	 let html='';
+	 let selectBar=`<select id="drop-down">`;
+	 for(let i=0;i<bar.length;i++){
+	   selectBar+=`<option value="progress-bar-${i+1}" ${i==0?"selected":""} >#progress${i+1}</option>`;
+	   html+=`<div class="container">
+		<div class="progress-bar-container">
+		    <span class="show">${parseInt((bar[i]/limit)*100)}%</span>
+			<div id="progress-bar-${(i+1)}" class="progress-status" style="width:${parseInt((bar[i]/limit)*100)}%"></div>
+		</div>
+	</div>`;
+	 }
+	 selectBar+='</select>';
+	 document.getElementById("progress-container").innerHTML=html;
+	 createButtons(buttons,limit,selectBar);
+	}
+	
+	function createElements(data){
+		var id = "progress-bar";
+		var bar = data.bars;
+		var limit = data.limit;
+		var buttons = data.buttons;
+		createBars(bar,limit,buttons);
+	}
+	
+	function executeScript(){
+	   var buttons = document.getElementsByClassName('button');
+	   var dropDown = document.getElementById('drop-down');
+	   for(let i=0;i<buttons.length;i++){
+		buttons[i].addEventListener('click', function(event) {
+		   var selectedValue=(this.value);
+		   var dropdownValue=(dropDown.value);
+		   var progressBar = document.getElementById(dropdownValue);
+		   var text = progressBar.parentNode.childNodes[1].innerText;
+		   var value = (parseInt(text)+parseInt(selectedValue));
+		   progressBar.parentNode.childNodes[1].innerText=value+'%';
+		   progressBar.style.width=(value)+'%';
+		   var data='progress-status';
+		   if(value>100){
+		     progressBar.setAttribute('class',(data+" red"));
+		   }else{
+		     progressBar.setAttribute('class',data);
+		   }
+		});
+		}
+	}
+	
+	var xhr = new XMLHttpRequest();
+
+// Setup our listener to process completed requests
+xhr.onload = function () {
+
+	// Process our return data
+	if (xhr.status >= 200 && xhr.status < 300) {
+		// What do when the request is successful
+		console.log('success!', xhr);
+		var data= JSON.parse(xhr.responseText);
+		console.log(data);
+		createElements(data);
+		executeScript();
+	} else {
+		// What do when the request fails
+		console.log('The request failed!');
+	}
+
+	// Code that should run regardless of the request status
+	console.log('This always runs...');
+};
+
+// Create and send a GET request
+// The first argument is the post type (GET, POST, PUT, DELETE, etc.)
+// The second argument is the endpoint URL
+xhr.open('GET', 'http://pb-api.herokuapp.com/bars');
+xhr.send();
+	</script>
+</body>
+</html>
